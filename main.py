@@ -152,7 +152,8 @@ class Canvas(QWidget):
         img_pos = self._to_image_pos(event.pos())
         if self.mode == Mode.BRUSH and self.drawing:
             painter = QPainter(self.image)
-            pen = QPen(self.brush_color, self.brush_size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+            pen = QPen(self.brush_color, self.brush_size,
+                       Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
             painter.setPen(pen)
             painter.drawLine(self.last_point, img_pos)
             self.last_point = img_pos
@@ -165,7 +166,8 @@ class Canvas(QWidget):
             self.update()
         elif self.mode == Mode.SELECT and self.drawing:
             self.end_point = img_pos
-            self.selection_rect = QRect(self.start_point, self.end_point).normalized()
+            self.selection_rect = QRect(
+                self.start_point, self.end_point).normalized()
             self.update()
         elif self.mode == Mode.MOVE and self.transforming and self.selected_image is not None:
             delta = img_pos - self.last_point
@@ -182,7 +184,8 @@ class Canvas(QWidget):
             rect = self.selection_rect
             width = max(1, img_pos.x() - rect.left())
             height = max(1, img_pos.y() - rect.top())
-            self._scale_factor = min(width / rect.width(), height / rect.height())
+            self._scale_factor = min(
+                width / rect.width(), height / rect.height())
             self.update()
 
     def mouseReleaseEvent(self, event):
@@ -195,7 +198,8 @@ class Canvas(QWidget):
                 self.drawing = False
             elif self.mode == Mode.LINE and self.drawing:
                 painter = QPainter(self.image)
-                pen = QPen(self.brush_color, self.stroke_size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+                pen = QPen(self.brush_color, self.stroke_size,
+                           Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
                 painter.setPen(pen)
                 painter.drawLine(self.start_point, img_pos)
                 self.drawing = False
@@ -224,7 +228,8 @@ class Canvas(QWidget):
                     painter = QPainter(self.image)
                     painter.setCompositionMode(QPainter.CompositionMode_Source)
                     painter.fillRect(self.selection_rect, Qt.transparent)
-                    painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+                    painter.setCompositionMode(
+                        QPainter.CompositionMode_SourceOver)
                     self._move_offset = QPoint(0, 0)
                     self._rot_angle = 0
                     self._scale_factor = 1.0
@@ -255,14 +260,17 @@ class Canvas(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         offset = self._canvas_offset() + self._pan
-        scaled = self.image.scaled(self.zoomed_size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        scaled = self.image.scaled(
+            self.zoomed_size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
         painter.drawImage(offset, scaled)
         # Draw temp shapes (rect/circle/line/selection) in widget coordinates
         if self.drawing and self.mode in [Mode.RECT, Mode.CIRCLE, Mode.LINE]:
-            pen = QPen(self.brush_color, self.stroke_size * self.zoom, Qt.DashLine)
+            pen = QPen(self.brush_color, self.stroke_size *
+                       self.zoom, Qt.DashLine)
             painter.setPen(pen)
             if self.mode == Mode.LINE:
-                painter.drawLine(self._to_widget(self.start_point), self._to_widget(self.end_point))
+                painter.drawLine(self._to_widget(
+                    self.start_point), self._to_widget(self.end_point))
             else:
                 rect = QRect(self.start_point, self.end_point)
                 widget_rect = self._to_widget_rect(rect)
@@ -285,7 +293,8 @@ class Canvas(QWidget):
             elif self.mode == Mode.SCALE:
                 w = int(img.width() * self._scale_factor)
                 h = int(img.height() * self._scale_factor)
-                img = img.scaled(w, h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                img = img.scaled(w, h, Qt.KeepAspectRatio,
+                                 Qt.SmoothTransformation)
             painter.drawImage(widget_rect.topLeft(), img)
             # Draw selection border
             pen = QPen(Qt.blue, 2, Qt.DashLine)
@@ -308,7 +317,8 @@ class Canvas(QWidget):
             elif self.mode == Mode.SCALE:
                 w = int(img.width() * self._scale_factor)
                 h = int(img.height() * self._scale_factor)
-                img = img.scaled(w, h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                img = img.scaled(w, h, Qt.KeepAspectRatio,
+                                 Qt.SmoothTransformation)
             # Move offset
             target_rect = self.selection_rect.translated(self._move_offset)
             # Clear area
